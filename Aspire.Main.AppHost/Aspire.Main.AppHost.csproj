@@ -11,12 +11,7 @@
 
   <ItemGroup>
     <PackageReference Include="Aspire.Hosting.AppHost" Version="8.0.2" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\API\Weather.API\Weather.API.csproj" />
-    <ProjectReference Include="..\..\Infrastructure\Infrastructure.DB.InMemory\Infrastructure.DB.InMemory.csproj" />
-    <ProjectReference Include="..\..\UI\Weather.UI\Weather.UI.csproj" />
+    <PackageReference Include="Dutchskull.Aspire.PolyRepo" Version="0.3.2" />
   </ItemGroup>
 
 </Project>
