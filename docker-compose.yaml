@@ -1,0 +1,43 @@
+version: "3.7"
+
+services:
+  aspire-sample-db:
+    image: ghcr.io/danjaniell/aspire.sample.infrastructure:master
+    container_name: aspire-sample-db
+    restart: unless-stopped
+    ports:
+      - 7227:8080
+
+  aspire-sample-api:
+    image: ghcr.io/danjaniell/aspire.sample.api:master
+    container_name: aspire-sample-api
+    restart: unless-stopped
+    environment:
+      - DBUrl=http://aspire-sample-db:8080
+    ports:
+      - 7017:8080
+    depends_on:
+      - aspire-sample-db
+
+  aspire-sample-ui:
+    image: ghcr.io/danjaniell/aspire.sample.ui:master
+    container_name: aspire-sample-ui
+    restart: unless-stopped
+    environment:
+      - APIUrl=http://aspire-sample-api:8080
+    ports:
+      - 7016:8080
+    depends_on:
+      - aspire-sample-api
+
+  # aspire-dashboard:
+  #   container_name: "aspire-dashboard"
+  #   image: "mcr.microsoft.com/dotnet/aspire-dashboard:8.0"
+  #   environment:
+  #     DOTNET_DASHBOARD_UNSECURED_ALLOW_ANONYMOUS: "true"
+  #   ports:
+  #   - target: 18888
+  #     published: 18888
+  #   restart: unless-stopped
+  #   depends_on:
+  #     - aspire-sample-ui
