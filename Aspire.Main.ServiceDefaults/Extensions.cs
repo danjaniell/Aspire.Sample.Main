@@ -3,7 +3,8 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
-using OpenTelemetry;
+using OpenTelemetry.Exporter;
+using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
 
@@ -68,7 +69,10 @@ public static class Extensions
 
         if (useOtlpExporter)
         {
-            builder.Services.AddOpenTelemetry().UseOtlpExporter();
+            builder.Services.Configure<OpenTelemetryLoggerOptions>(logging => logging.AddOtlpExporter());
+            builder.Services.ConfigureOpenTelemetryMeterProvider(metrics => metrics.AddOtlpExporter());
+            builder.Services.ConfigureOpenTelemetryTracerProvider(tracing => tracing.AddOtlpExporter());
+            builder.AddExportToSeq();
         }
 
         // Uncomment the following lines to enable the Azure Monitor exporter (requires the Azure.Monitor.OpenTelemetry.AspNetCore package)
@@ -108,4 +112,24 @@ public static class Extensions
 
         return app;
     }
+
+    static IHostApplicationBuilder AddExportToSeq(this IHostApplicationBuilder builder)
+    {
+        builder.Services.Configure<OpenTelemetryLoggerOptions>(logging => logging.AddOtlpExporter(opt =>
+        {
+            opt.Endpoint = new Uri("http://localhost:5341/ingest/otlp/v1/logs");
+            opt.Protocol = OtlpExportProtocol.HttpProtobuf;
+        }));
+        builder.Services.ConfigureOpenTelemetryTracerProvider(tracing => tracing
+            .AddSource("Weather.API")
+            .AddOtlpExporter(opt =>
+            {
+                opt.Endpoint = new Uri("http://localhost:5341/ingest/otlp/v1/traces");
+                opt.Protocol = OtlpExportProtocol.HttpProtobuf;
+            }
+            ));
+
+        return builder;
+    }
+
 }
