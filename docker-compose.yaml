@@ -6,16 +6,16 @@ services:
     container_name: aspire-sample-db
     restart: unless-stopped
     ports:
-      - 7227:8080
+      - 7227:1818
 
   aspire-sample-api:
     image: ghcr.io/danjaniell/aspire.sample.api:master
     container_name: aspire-sample-api
     restart: unless-stopped
     environment:
-      - DBUrl=http://aspire-sample-db:8080
+      - DBUrl=http://aspire-sample-db:1818
     ports:
-      - 7017:8080
+      - 7017:1919
     depends_on:
       - aspire-sample-db
 
@@ -24,9 +24,9 @@ services:
     container_name: aspire-sample-ui
     restart: unless-stopped
     environment:
-      - APIUrl=http://aspire-sample-api:8080
+      - APIUrl=http://aspire-sample-api:1919
     ports:
-      - 7016:8080
+      - 7016:2020
     depends_on:
       - aspire-sample-api
 
